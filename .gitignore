@@ -265,3 +265,8 @@ docs/type3/signatures/
 
 # Claude
 .claude/
+
+stirling-pdf.flatpak
+flatpak-repo/
+flatpak-build-dir/
+.flatpak-builder/

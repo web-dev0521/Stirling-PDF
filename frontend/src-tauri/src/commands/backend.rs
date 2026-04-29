@@ -408,13 +408,18 @@ pub async fn start_backend(
         return Ok(msg);
     }
 
-    // Use Tauri's resource API to find the bundled JRE and JAR
-    let resource_dir = app.path().resource_dir().map_err(|e| {
-        let error_msg = format!("❌ Failed to get resource directory: {}", e);
-        add_log(error_msg.clone());
-        reset_starting_flag();
-        error_msg
-    })?;
+    // STIRLING_PDF_HOME overrides the resource directory for non-FHS installs
+    // (e.g. Flatpak, where Tauri's resource_dir() returns /usr/lib/... but the
+    // bundled JRE/JAR actually live under /app/lib/stirling-pdf).
+    let resource_dir = match std::env::var_os("STIRLING_PDF_HOME") {
+        Some(path) => PathBuf::from(path),
+        None => app.path().resource_dir().map_err(|e| {
+            let error_msg = format!("❌ Failed to get resource directory: {}", e);
+            add_log(error_msg.clone());
+            reset_starting_flag();
+            error_msg
+        })?,
+    };
 
     add_log(format!("🔍 Resource directory: {:?}", resource_dir));
 

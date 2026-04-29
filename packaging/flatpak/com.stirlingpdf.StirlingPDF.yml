@@ -1,0 +1,107 @@
+app-id: com.stirlingpdf.StirlingPDF
+runtime: org.gnome.Platform
+runtime-version: '48'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+  - org.freedesktop.Sdk.Extension.node20
+command: stirling-pdf-launcher
+
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --socket=wayland
+  - --socket=x11
+  - --device=dri
+  - --filesystem=home
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-download
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.freedesktop.secrets
+  - --talk-name=org.freedesktop.portal.Desktop
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/node20/bin:/app/jdk/bin
+  build-args:
+    - --share=network
+  env:
+    CARGO_HOME: /run/build/stirling-pdf/cargo
+    NPM_CONFIG_CACHE: /run/build/stirling-pdf/npm-cache
+    GRADLE_USER_HOME: /run/build/stirling-pdf/gradle
+    DISABLE_ADDITIONAL_FEATURES: 'true'
+
+modules:
+  # ---------------------------------------------------------------
+  # Bundled Temurin JDK 25 — matches the version used in
+  # .github/workflows/tauri-build.yml so jlink output is identical.
+  # Update the URL/sha256 when bumping JDK in CI.
+  # ---------------------------------------------------------------
+  - name: openjdk
+    buildsystem: simple
+    build-options:
+      strip: false
+      no-debuginfo: true
+    cleanup:
+      - '*'
+    build-commands:
+      - mkdir -p /app/jdk
+      - cp -a . /app/jdk/
+    sources:
+      - type: archive
+        url: https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25%2B36/OpenJDK25U-jdk_x64_linux_hotspot_25_36.tar.gz
+        sha256: ee04de95ab9da7287d40bd2173076ecc2a6dd662f007bedfc6eb0380c0ef90e8
+        strip-components: 1
+        only-arches:
+          - x86_64
+
+  # ---------------------------------------------------------------
+  # Stirling-PDF — runs the existing desktop:prepare + tauri build
+  # pipeline inside the sandbox so the binary links against the
+  # Flatpak runtime's libwebkit2gtk-4.1 / libgtk-3.
+  # ---------------------------------------------------------------
+  - name: stirling-pdf
+    buildsystem: simple
+    build-options:
+      env:
+        JAVA_HOME: /app/jdk
+    build-commands:
+      # Build Spring Boot JAR + jlink JRE
+      - ./gradlew bootJar --no-daemon --console=plain
+      - mkdir -p frontend/src-tauri/libs
+      - cp app/core/build/libs/stirling-pdf-*.jar frontend/src-tauri/libs/
+      # jlink stripped runtime (must mirror .taskfiles/desktop.yml)
+      - rm -rf frontend/src-tauri/runtime/jre
+      - mkdir -p frontend/src-tauri/runtime
+      - >-
+        $JAVA_HOME/bin/jlink
+        --add-modules
+        java.base,java.compiler,java.desktop,java.instrument,java.logging,java.management,java.naming,java.net.http,java.prefs,java.rmi,java.scripting,java.security.jgss,java.security.sasl,java.sql,java.transaction.xa,java.xml,java.xml.crypto,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.unsupported
+        --strip-debug
+        --compress=2
+        --no-header-files
+        --no-man-pages
+        --output frontend/src-tauri/runtime/jre
+      # Frontend + Tauri build (no bundle — we package manually below)
+      - cd frontend && npm ci
+      - cd frontend && npx vite build --mode desktop
+      - cd frontend/src-tauri && cargo build --release --locked
+      # Install binary
+      - install -Dm755 frontend/src-tauri/target/release/stirling-pdf /app/bin/stirling-pdf
+      # Install bundled JRE + JAR alongside binary
+      - mkdir -p /app/lib/stirling-pdf
+      - cp -a frontend/src-tauri/runtime /app/lib/stirling-pdf/
+      - cp -a frontend/src-tauri/libs /app/lib/stirling-pdf/
+      # Launcher wrapper (sets JAVA_HOME, then execs binary)
+      - install -Dm755 packaging/flatpak/launcher.sh /app/bin/stirling-pdf-launcher
+      # Desktop entry + AppStream metadata
+      - install -Dm644 packaging/flatpak/com.stirlingpdf.StirlingPDF.desktop /app/share/applications/com.stirlingpdf.StirlingPDF.desktop
+      - install -Dm644 packaging/flatpak/com.stirlingpdf.StirlingPDF.metainfo.xml /app/share/metainfo/com.stirlingpdf.StirlingPDF.metainfo.xml
+      # Icons
+      - install -Dm644 frontend/src-tauri/icons/16x16.png /app/share/icons/hicolor/16x16/apps/com.stirlingpdf.StirlingPDF.png
+      - install -Dm644 frontend/src-tauri/icons/32x32.png /app/share/icons/hicolor/32x32/apps/com.stirlingpdf.StirlingPDF.png
+      - install -Dm644 frontend/src-tauri/icons/64x64.png /app/share/icons/hicolor/64x64/apps/com.stirlingpdf.StirlingPDF.png
+      - install -Dm644 frontend/src-tauri/icons/128x128.png /app/share/icons/hicolor/128x128/apps/com.stirlingpdf.StirlingPDF.png
+      - install -Dm644 frontend/src-tauri/icons/192x192.png /app/share/icons/hicolor/192x192/apps/com.stirlingpdf.StirlingPDF.png
+    sources:
+      - type: dir
+        path: ../..

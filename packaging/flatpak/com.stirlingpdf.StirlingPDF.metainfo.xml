@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.stirlingpdf.StirlingPDF</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Stirling-PDF</name>
+  <summary>Locally hosted PDF manipulation toolkit</summary>
+
+  <description>
+    <p>
+      Stirling-PDF is a locally hosted web application for performing a wide
+      range of operations on PDF files, including splitting, merging,
+      converting, compressing, OCR, redaction, and more. The desktop edition
+      bundles the full server runtime so all processing stays on your machine.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">com.stirlingpdf.StirlingPDF.desktop</launchable>
+
+  <url type="homepage">https://www.stirlingpdf.com</url>
+  <url type="bugtracker">https://github.com/Stirling-Tools/Stirling-PDF/issues</url>
+  <url type="vcs-browser">https://github.com/Stirling-Tools/Stirling-PDF</url>
+
+  <developer id="com.stirlingpdf">
+    <name>Stirling PDF Inc.</name>
+  </developer>
+
+  <content_rating type="oars-1.1" />
+
+  <categories>
+    <category>Office</category>
+    <category>Graphics</category>
+    <category>Utility</category>
+  </categories>
+
+  <provides>
+    <mediatype>application/pdf</mediatype>
+  </provides>
+
+  <releases>
+    <release version="2.9.2" date="2026-04-28">
+      <description>
+        <p>Initial Flatpak packaging.</p>
+      </description>
+    </release>
+  </releases>
+</component>
