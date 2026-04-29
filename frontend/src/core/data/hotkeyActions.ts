@@ -32,36 +32,25 @@ export const HOTKEY_ACTIONS: Record<HotkeyActionId, HotkeyActionMetadata> = {
   },
 };
 
-// Detect Tauri without importing the SDK from core code (preserves layering).
-const isTauriRuntime = (): boolean => {
-  if (typeof window === "undefined") return false;
-  return "__TAURI_INTERNALS__" in window || "__TAURI__" in window;
-};
-
+// Defaults intentionally avoid Ctrl+Tab / Ctrl+Shift+Tab — both are reserved
+// by browsers for switching tabs and cannot be reliably intercepted. The same
+// defaults are used in the Tauri desktop build so the shortcut feels the same
+// across platforms. Users can rebind from Settings → Keyboard Shortcuts.
 export const generateDefaultActionBindings = (
   macLike: boolean,
-): Partial<Record<HotkeyActionId, HotkeyBinding>> => {
-  // In the browser, Ctrl+Tab is reserved for switching browser tabs and cannot
-  // be reliably intercepted, so leave file-cycle actions unbound by default.
-  // The user can still assign a binding manually from settings.
-  if (!isTauriRuntime()) {
-    return {};
-  }
-
-  return {
-    "file.cycleNext": {
-      code: "Tab",
-      ctrl: !macLike,
-      meta: macLike,
-      alt: false,
-      shift: false,
-    },
-    "file.cyclePrev": {
-      code: "Tab",
-      ctrl: !macLike,
-      meta: macLike,
-      alt: false,
-      shift: true,
-    },
-  };
-};
+): Partial<Record<HotkeyActionId, HotkeyBinding>> => ({
+  "file.cycleNext": {
+    code: "BracketRight",
+    ctrl: !macLike,
+    meta: macLike,
+    alt: true,
+    shift: false,
+  },
+  "file.cyclePrev": {
+    code: "BracketLeft",
+    ctrl: !macLike,
+    meta: macLike,
+    alt: true,
+    shift: false,
+  },
+});
