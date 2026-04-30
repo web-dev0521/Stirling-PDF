@@ -32,25 +32,10 @@ export const HOTKEY_ACTIONS: Record<HotkeyActionId, HotkeyActionMetadata> = {
   },
 };
 
-// Defaults intentionally avoid Ctrl+Tab / Ctrl+Shift+Tab — both are reserved
-// by browsers for switching tabs and cannot be reliably intercepted. The same
-// defaults are used in the Tauri desktop build so the shortcut feels the same
-// across platforms. Users can rebind from Settings → Keyboard Shortcuts.
+// Browser builds ship with no default for file-cycle actions — every useful
+// key combination is already reserved by some browser on some OS. Desktop
+// builds override this function via the @app/* alias to return Ctrl+Tab /
+// Ctrl+Shift+Tab, which are interceptable inside the Tauri webview.
 export const generateDefaultActionBindings = (
-  macLike: boolean,
-): Partial<Record<HotkeyActionId, HotkeyBinding>> => ({
-  "file.cycleNext": {
-    code: "BracketRight",
-    ctrl: !macLike,
-    meta: macLike,
-    alt: true,
-    shift: false,
-  },
-  "file.cyclePrev": {
-    code: "BracketLeft",
-    ctrl: !macLike,
-    meta: macLike,
-    alt: true,
-    shift: false,
-  },
-});
+  _macLike: boolean,
+): Partial<Record<HotkeyActionId, HotkeyBinding>> => ({});

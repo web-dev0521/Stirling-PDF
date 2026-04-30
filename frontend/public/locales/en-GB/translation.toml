@@ -6802,20 +6802,20 @@ fitPage = "Fit page"
 fitWidth = "Fit width"
 
 [settings.hotkeys]
-actionsTitle = "Actions"
 capturing = "Press keys… (Esc to cancel)"
 change = "Change shortcut"
 customBadge = "Custom"
 defaultLabel = "Default: {{shortcut}}"
 description = "Customize keyboard shortcuts for quick tool access. Click \"Change shortcut\" and press a new key combination. Press Esc to cancel."
 errorConflict = "Shortcut already used by {{tool}}."
+navigationTitle = "Navigation"
 none = "Not assigned"
 noShortcut = "No shortcut set"
 reset = "Reset"
 searchPlaceholder = "Search tools..."
 shortcut = "Shortcut"
 title = "Keyboard Shortcuts"
-toolsTitle = "Tools"
+toolShortcutsTitle = "Tool Shortcuts"
 
 [settings.hotkeys.actions.fileCycleNext]
 description = "Cycle to the next open PDF"

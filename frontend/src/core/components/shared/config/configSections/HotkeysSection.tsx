@@ -284,7 +284,7 @@ const HotkeysSection: React.FC = () => {
       {filteredActions.length > 0 && (
         <div>
           <Text fw={600} size="md" mb="xs">
-            {t("settings.hotkeys.actionsTitle", "Actions")}
+            {t("settings.hotkeys.navigationTitle", "Navigation")}
           </Text>
           <Paper withBorder p="md" radius="md">
             <Stack gap="md">
@@ -298,7 +298,7 @@ const HotkeysSection: React.FC = () => {
 
       <div>
         <Text fw={600} size="md" mb="xs">
-          {t("settings.hotkeys.toolsTitle", "Tools")}
+          {t("settings.hotkeys.toolShortcutsTitle", "Tool Shortcuts")}
         </Text>
         <Paper withBorder p="md" radius="md">
           <Stack gap="md">

@@ -36,7 +36,7 @@ export function HotkeyActionRegistrar() {
       // selected file, then to the start/end of the list.
       const current =
         activeFileIdRef.current ?? stateRef.current.ui.selectedFileIds[0];
-      const currentIndex = current ? ids.indexOf(current) : -1;
+      const currentIndex = current ? ids.findIndex((id) => id === current) : -1;
       const base =
         currentIndex === -1 ? (direction === 1 ? -1 : 0) : currentIndex;
       const nextIndex = (base + direction + ids.length) % ids.length;
