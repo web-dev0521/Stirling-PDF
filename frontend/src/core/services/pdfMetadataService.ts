@@ -270,9 +270,10 @@ export async function extractPDFMetadata(
 
   const m = await getPdfiumModule();
   let docPtr: number;
+  let arrayBuffer: ArrayBuffer;
 
   try {
-    const arrayBuffer = await file.arrayBuffer();
+    arrayBuffer = await file.arrayBuffer();
     docPtr = await openRawDocument(arrayBuffer);
   } catch (error) {
     const errorMessage =
