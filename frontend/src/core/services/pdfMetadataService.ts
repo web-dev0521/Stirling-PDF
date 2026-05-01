@@ -93,9 +93,7 @@ function decodePdfLiteralString(raw: string): string {
     .replace(/\\\\/g, "\\")
     .replace(/\\\(/g, "(")
     .replace(/\\\)/g, ")")
-    .replace(/\\(\d{1,3})/g, (_, oct) =>
-      String.fromCharCode(parseInt(oct, 8)),
-    );
+    .replace(/\\(\d{1,3})/g, (_, oct) => String.fromCharCode(parseInt(oct, 8)));
 }
 
 function decodePdfHexString(raw: string): string {
@@ -244,10 +242,7 @@ function convertTrappedStatus(trapped: string): TrappedStatus {
  * Read a named metadata tag from an open PDFium document pointer.
  * Returns empty string if the tag is absent or empty.
  */
-async function readMetaText(
-  docPtr: number,
-  tag: string,
-): Promise<string> {
+async function readMetaText(docPtr: number, tag: string): Promise<string> {
   const m = await getPdfiumModule();
   const len = m.FPDF_GetMetaText(docPtr, tag, 0, 0);
   if (len <= 2) return ""; // 2-byte NUL terminator only → empty
